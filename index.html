@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Orbitron:900,400,500,700' rel='stylesheet' type='text/css'>
+
+    <title>Guessy Word</title>
+    <style>
+    body          { font-size: 100% }
+    .title        { font-size: 2em; }
+    .letterButton { font-size: 1.5em; }
+
+    .title        { font-family: Orbitron, Arial; font-weight: 900; text-transform: uppercase; }
+    .letterButton { font-family: Orbitron, Arial; font-weight: 700; text-transform: uppercase; }
+
+    .alphabetPanel {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .letterButton {
+      width: 50px;
+      height: 50px;
+      text-align: center;
+      line-height: 50px;
+      cursor: default;
+      box-sizing: border-box;
+    }
+
+    .letterButton.correct { color: cyan; }
+    .letterButton.incorrect { color: red; }
+    </style>
+  </head>
+  <body>
+    <div id="main"></div>
+    <script src="bundle.js"></script>
+  </body>
+</html>
