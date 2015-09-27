@@ -20514,7 +20514,7 @@
 	            classes.push("incorrect");
 	        }
 	        var className = classes.join(" ");
-	        return (React.createElement("div", {"className": className, "onClick": this._onClick}, this.props.letter));
+	        return (React.createElement("button", {"className": className, "onClick": this._onClick}, this.props.letter));
 	    };
 	    return LetterButton;
 	})(React.Component);
