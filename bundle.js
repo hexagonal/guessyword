@@ -20456,31 +20456,41 @@
 	        AppStore_1.default.removeChangeListener(this._onChange);
 	    };
 	    App.prototype.render = function () {
-	        return (React.createElement("div", null, React.createElement(Title, {"title": "Guessy Word"}), React.createElement(WordPanel, {"state": this.state}), React.createElement(AlphabetPanel, {"state": this.state})));
+	        return (React.createElement("div", null, React.createElement(Title, {"title": "Guessy Word"}), React.createElement(Puzzle, {"state": this.state}), React.createElement(AlphabetPanel, {"state": this.state})));
 	    };
 	    return App;
 	})(React.Component);
 	exports.App = App;
-	var WordPanel = (function (_super) {
-	    __extends(WordPanel, _super);
-	    function WordPanel() {
-	        _super.apply(this, arguments);
-	    }
-	    WordPanel.prototype.render = function () {
-	        var help = new AppStore_2.AppStateHelp(this.props.state);
-	        return (React.createElement("div", {"className": "word"}, this.props.state.word));
-	    };
-	    return WordPanel;
-	})(React.Component);
 	var Title = (function (_super) {
 	    __extends(Title, _super);
 	    function Title() {
 	        _super.apply(this, arguments);
 	    }
-	    Title.prototype.render = function () {
-	        return React.createElement("div", {"className": "title"}, this.props.title);
-	    };
+	    Title.prototype.render = function () { return React.createElement("div", {"className": "title"}, this.props.title); };
 	    return Title;
+	})(React.Component);
+	var Puzzle = (function (_super) {
+	    __extends(Puzzle, _super);
+	    function Puzzle() {
+	        _super.apply(this, arguments);
+	    }
+	    Puzzle.prototype.render = function () {
+	        var help = new AppStore_2.AppStateHelp(this.props.state);
+	        var puzzle = help.puzzle;
+	        var puzzleLetters = puzzle.map(function (letter, i) {
+	            return React.createElement(PuzzleLetter, {"key": i, "letter": letter});
+	        });
+	        return React.createElement("div", {"className": "puzzle"}, puzzleLetters);
+	    };
+	    return Puzzle;
+	})(React.Component);
+	var PuzzleLetter = (function (_super) {
+	    __extends(PuzzleLetter, _super);
+	    function PuzzleLetter() {
+	        _super.apply(this, arguments);
+	    }
+	    PuzzleLetter.prototype.render = function () { return React.createElement("div", {"className": "letter"}, this.props.letter); };
+	    return PuzzleLetter;
 	})(React.Component);
 	var AlphabetPanel = (function (_super) {
 	    __extends(AlphabetPanel, _super);
@@ -20490,8 +20500,8 @@
 	    }
 	    AlphabetPanel.prototype.render = function () {
 	        var _this = this;
-	        var letterButtons = this.alphabet.map(function (letter) {
-	            return React.createElement(LetterButton, {"key": letter, "letter": letter, "state": _this.props.state});
+	        var letterButtons = this.alphabet.map(function (letter, i) {
+	            return React.createElement(LetterButton, {"key": i, "letter": letter, "state": _this.props.state});
 	        });
 	        return React.createElement("div", {"className": "alphabetPanel"}, letterButtons);
 	    };
@@ -20541,6 +20551,18 @@
 	    AppStateHelp.prototype.isIncorrectGuess = function (letter) {
 	        return this.state.incorrectGuesses.some(function (x) { return x === letter; });
 	    };
+	    Object.defineProperty(AppStateHelp.prototype, "puzzle", {
+	        get: function () {
+	            var _this = this;
+	            var letters = this.state.word.split('');
+	            var puzzle = letters.map(function (letter) {
+	                return _this.isCorrectGuess(letter) ? letter : '_';
+	            });
+	            return puzzle;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    return AppStateHelp;
 	})();
 	exports.AppStateHelp = AppStateHelp;
@@ -20549,7 +20571,7 @@
 	        var _this = this;
 	        this._ee = new events_1.EventEmitter;
 	        this._state = {
-	            word: 'nostril',
+	            word: '',
 	            correctGuesses: Immutable.Set(),
 	            incorrectGuesses: Immutable.Set()
 	        };
@@ -26220,25 +26242,64 @@
 	    function ActionCreator() {
 	    }
 	    ActionCreator.prototype.loadNextPuzzle = function () {
-	        console.log('Load next puzzle...');
-	        var xhr = new XMLHttpRequest();
-	        xhr.open('GET', encodeURI('words.txt'));
-	        xhr.onload = function () {
-	            if (xhr.status === 200) {
-	                var word = xhr.responseText.substr(0, 6);
-	                AppDispatcher_1.default.dispatch(new LoadNextPuzzleAction(word));
-	            }
-	            else {
-	                console.log('Puzzle file not found.');
-	            }
-	        };
-	        xhr.send();
+	        var _this = this;
+	        var wordsJson = localStorage.getItem('words');
+	        var words = wordsJson ? JSON.parse(wordsJson) : [];
+	        if (words.length !== 0) {
+	            console.log('Local storage found.');
+	        }
+	        else {
+	            console.log('Local storage not found. Downloading puzzle file...');
+	            var xhr = new XMLHttpRequest();
+	            xhr.open('GET', encodeURI('words.txt'));
+	            xhr.onload = function () {
+	                if (xhr.status === 200) {
+	                    var unshuffledWords = xhr.responseText.split(/\r?\n/);
+	                    var words_1 = shuffle(unshuffledWords);
+	                    writeLocalWords(words_1);
+	                    _this.loadNextPuzzle();
+	                }
+	                else {
+	                    console.log('Puzzle file not found.');
+	                }
+	            };
+	            xhr.send();
+	            return;
+	        }
+	        var word = words.pop();
+	        writeLocalWords(words);
+	        AppDispatcher_1.default.dispatch(new LoadNextPuzzleAction(word));
 	    };
 	    ActionCreator.prototype.guessLetter = function (letter) {
 	        AppDispatcher_1.default.dispatch(new GuessLetterAction(letter));
 	    };
 	    return ActionCreator;
 	})();
+	function loadLocalWords() {
+	    var wordsJson = localStorage.getItem('words');
+	    return wordsJson ? JSON.parse(wordsJson) : [];
+	}
+	function writeLocalWords(words) {
+	    var wordsJson = JSON.stringify(words);
+	    localStorage.setItem('words', wordsJson);
+	}
+	function shuffle(arr) {
+	    var top = arr.length;
+	    if (top)
+	        while (--top) {
+	            var current = Math.floor(Math.random() * (top + 1));
+	            var item = arr[current];
+	            arr[current] = arr[top];
+	            arr[top] = item;
+	        }
+	    return arr;
+	}
+	function getRandomItem(arr) {
+	    return arr[getRandomInt(0, arr.length)];
+	}
+	function getRandomInt(min, max) {
+	    return Math.floor(Math.random() * (max - min)) + min;
+	}
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = new ActionCreator;
 

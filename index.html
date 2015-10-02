@@ -7,31 +7,44 @@
 
     <title>Guessy Word</title>
     <style>
-    body          { font-size: 100% }
-    .title        { font-size: 2em; }
-    .letterButton { font-size: 1.5em; }
+body          { font-size: 100% }
+.title        { font-size: 2em; }
+.letterButton { font-size: 1.5em; }
 
-    .title        { font-family: Orbitron, Arial; font-weight: 900; text-transform: uppercase; }
-    .letterButton { font-family: Orbitron, Arial; font-weight: 700; text-transform: uppercase; }
+.title {
+  font-family: Orbitron, Arial;
+  font-weight: 900;
+  text-transform: uppercase;
+}
 
-    .alphabetPanel {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-    }
+.letterButton, .puzzle {
+   font-family: Orbitron,
+   Arial; font-weight: 700;
+   text-transform: uppercase;
+ }
 
-    .letterButton {
-      width: 50px;
-      height: 50px;
-      text-align: center;
-      line-height: 50px;
-      box-sizing: border-box;
-      border: 0;
-      background-color: transparent;
-    }
+.puzzle > .letter {
+  display: inline-block;
+}
 
-    .letterButton.correct { color: cyan; }
-    .letterButton.incorrect { color: red; }
+.alphabetPanel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.letterButton, .puzzle > .letter {
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  line-height: 50px;
+  box-sizing: border-box;
+  border: 0;
+  background-color: transparent;
+}
+
+.letterButton.correct { color: cyan; }
+.letterButton.incorrect { color: red; }
     </style>
   </head>
   <body>
