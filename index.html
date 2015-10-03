@@ -7,48 +7,99 @@
 
     <title>Guessy Word</title>
     <style>
-body          { font-size: 100% }
-.title        { font-size: 2em; }
-.letterButton { font-size: 1.5em; }
+html { font-size: 16px; } /* base font sizes */
+@media (min-width: 480px) { html { font-size: 24px; }}
+@media (min-width: 640px) { html { font-size: 32px; }}
 
-.title {
+#app {
+    max-width: 20rem;
+    margin: auto;
+}
+
+#app, button {
   font-family: Orbitron, Arial;
-  font-weight: 900;
   text-transform: uppercase;
+  text-align: center;
 }
 
-.letterButton, .puzzle {
-   font-family: Orbitron,
-   Arial; font-weight: 700;
-   text-transform: uppercase;
- }
+button:focus { outline: 0 !important; }
 
-.puzzle > .letter {
-  display: inline-block;
+header {
+  margin: auto;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
-.alphabetPanel {
+header > h1 {
+  font-weight: 900;
+  font-size: 2rem;
+}
+
+main > .puzzle {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  justify-content: center;
 }
 
-.letterButton, .puzzle > .letter {
-  width: 50px;
-  height: 50px;
-  text-align: center;
-  line-height: 50px;
+main > .puzzle > .letter {
+  display: inline-block;
   box-sizing: border-box;
   border: 0;
+  width: 1.875rem;
+  height: 1.875rem;
+  line-height: 1.875rem;
+  font-weight: 700;
+  font-size: 1rem;
   background-color: transparent;
 }
 
-.letterButton.correct { color: cyan; }
-.letterButton.incorrect { color: red; }
+main > .alphabetPanel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: auto;
+  width: 19.375em;
+}
+
+main > .alphabetPanel > .letterButton {
+  box-sizing: border-box;
+  border: 0;
+  width: 3.125rem;
+  height: 3.125rem;
+  line-height: 3.125rem;
+  font-weight: 700;
+  font-size: 2rem;
+  background-color: transparent;
+}
+
+main > .alphabetPanel > .letterButton.correct {
+  visibility: hidden;
+}
+
+main > .alphabetPanel > .letterButton.incorrect {
+  color: red;
+}
+
+footer {
+  margin: auto;
+}
+
+footer > .newGame {
+  box-sizing: border-box;
+  border: 0;
+  width: 3.750rem;
+  height: 3.750rem;
+  line-height: 3.750rem;
+  font-weight: 900;
+  font-size: 3.625em;
+  background-color: transparent;
+}
     </style>
   </head>
   <body>
-    <div id="main"></div>
+    <div id="app"></div>
     <script src="bundle.js"></script>
   </body>
 </html>

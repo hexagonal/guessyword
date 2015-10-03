@@ -47,7 +47,7 @@
 	/// <reference path="../typings/react/react.d.ts"/>
 	var React = __webpack_require__(1);
 	var App_1 = __webpack_require__(157);
-	React.render(React.createElement(App_1.App, null), document.getElementById('main'));
+	React.render(React.createElement(App_1.App, null), document.getElementById('app'));
 
 
 /***/ },
@@ -20450,13 +20450,13 @@
 	    }
 	    App.prototype.componentDidMount = function () {
 	        AppStore_1.default.addChangeListener(this._onChange);
-	        AppActions_1.default.loadNextPuzzle();
+	        AppActions_1.default.newGame();
 	    };
 	    App.prototype.componentWillUnmount = function () {
 	        AppStore_1.default.removeChangeListener(this._onChange);
 	    };
 	    App.prototype.render = function () {
-	        return (React.createElement("div", null, React.createElement(Title, {"title": "Guessy Word"}), React.createElement(Puzzle, {"state": this.state}), React.createElement(AlphabetPanel, {"state": this.state})));
+	        return (React.createElement("div", null, React.createElement("header", null, React.createElement(Title, {"title": "Guessy Word"})), React.createElement("main", null, React.createElement(Puzzle, {"state": this.state}), React.createElement(AlphabetPanel, {"state": this.state})), React.createElement("footer", null, React.createElement(NewGameButton, null))));
 	    };
 	    return App;
 	})(React.Component);
@@ -20466,7 +20466,7 @@
 	    function Title() {
 	        _super.apply(this, arguments);
 	    }
-	    Title.prototype.render = function () { return React.createElement("div", {"className": "title"}, this.props.title); };
+	    Title.prototype.render = function () { return React.createElement("h1", {"className": "title"}, this.props.title); };
 	    return Title;
 	})(React.Component);
 	var Puzzle = (function (_super) {
@@ -20529,6 +20529,17 @@
 	    };
 	    return LetterButton;
 	})(React.Component);
+	var NewGameButton = (function (_super) {
+	    __extends(NewGameButton, _super);
+	    function NewGameButton() {
+	        _super.apply(this, arguments);
+	        this._onClick = function () { AppActions_1.default.newGame(); };
+	    }
+	    NewGameButton.prototype.render = function () {
+	        return (React.createElement("button", {"className": "newGame", "onClick": this._onClick}, "+"));
+	    };
+	    return NewGameButton;
+	})(React.Component);
 
 
 /***/ },
@@ -20576,8 +20587,8 @@
 	            incorrectGuesses: Immutable.Set()
 	        };
 	        AppDispatcher_1.default.register(function (action) {
-	            if (action instanceof AppActions_1.LoadNextPuzzleAction) {
-	                _this.loadNextPuzzle(action.word);
+	            if (action instanceof AppActions_1.NewGameAction) {
+	                _this.newGame(action.word);
 	            }
 	            else if (action instanceof AppActions_1.GuessLetterAction) {
 	                _this.guessLetter(action.letter);
@@ -20589,7 +20600,7 @@
 	        enumerable: true,
 	        configurable: true
 	    });
-	    AppStore.prototype.loadNextPuzzle = function (word) {
+	    AppStore.prototype.newGame = function (word) {
 	        this._state = {
 	            word: word,
 	            correctGuesses: Immutable.Set(),
@@ -26231,17 +26242,17 @@
 	    return GuessLetterAction;
 	})();
 	exports.GuessLetterAction = GuessLetterAction;
-	var LoadNextPuzzleAction = (function () {
-	    function LoadNextPuzzleAction(word) {
+	var NewGameAction = (function () {
+	    function NewGameAction(word) {
 	        this.word = word;
 	    }
-	    return LoadNextPuzzleAction;
+	    return NewGameAction;
 	})();
-	exports.LoadNextPuzzleAction = LoadNextPuzzleAction;
+	exports.NewGameAction = NewGameAction;
 	var ActionCreator = (function () {
 	    function ActionCreator() {
 	    }
-	    ActionCreator.prototype.loadNextPuzzle = function () {
+	    ActionCreator.prototype.newGame = function () {
 	        var _this = this;
 	        var wordsJson = localStorage.getItem('words');
 	        var words = wordsJson ? JSON.parse(wordsJson) : [];
@@ -26257,7 +26268,7 @@
 	                    var unshuffledWords = xhr.responseText.split(/\r?\n/);
 	                    var words_1 = shuffle(unshuffledWords);
 	                    writeLocalWords(words_1);
-	                    _this.loadNextPuzzle();
+	                    _this.newGame();
 	                }
 	                else {
 	                    console.log('Puzzle file not found.');
@@ -26268,7 +26279,7 @@
 	        }
 	        var word = words.pop();
 	        writeLocalWords(words);
-	        AppDispatcher_1.default.dispatch(new LoadNextPuzzleAction(word));
+	        AppDispatcher_1.default.dispatch(new NewGameAction(word));
 	    };
 	    ActionCreator.prototype.guessLetter = function (letter) {
 	        AppDispatcher_1.default.dispatch(new GuessLetterAction(letter));
