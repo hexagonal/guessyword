@@ -20489,7 +20489,16 @@
 	    function PuzzleLetter() {
 	        _super.apply(this, arguments);
 	    }
-	    PuzzleLetter.prototype.render = function () { return React.createElement("div", {"className": "letter"}, this.props.letter); };
+	    PuzzleLetter.prototype.render = function () {
+	        var letter = this.props.letter;
+	        var classes = [];
+	        classes.push("letter");
+	        if (letter) {
+	            classes.push("revealed");
+	        }
+	        var className = classes.join(" ");
+	        return (React.createElement("div", {"className": className}, letter ? letter : "_"));
+	    };
 	    return PuzzleLetter;
 	})(React.Component);
 	var AlphabetPanel = (function (_super) {
@@ -20567,7 +20576,7 @@
 	            var _this = this;
 	            var letters = this.state.word.split('');
 	            var puzzle = letters.map(function (letter) {
-	                return _this.isCorrectGuess(letter) ? letter : '_';
+	                return _this.isCorrectGuess(letter) ? letter : null;
 	            });
 	            return puzzle;
 	        },
@@ -26234,6 +26243,7 @@
 /* 165 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/// <reference path="../../typings/es6-promise/es6-promise.d.ts"/>
 	var AppDispatcher_1 = __webpack_require__(161);
 	var GuessLetterAction = (function () {
 	    function GuessLetterAction(letter) {
@@ -26253,39 +26263,43 @@
 	    function ActionCreator() {
 	    }
 	    ActionCreator.prototype.newGame = function () {
-	        var _this = this;
-	        var wordsJson = localStorage.getItem('words');
-	        var words = wordsJson ? JSON.parse(wordsJson) : [];
+	        var useNextWord = function (words) {
+	            var word = words.pop();
+	            writeLocalWords(words);
+	            AppDispatcher_1.default.dispatch(new NewGameAction(word));
+	        };
+	        var words = loadLocalWords();
 	        if (words.length !== 0) {
-	            console.log('Local storage found.');
+	            useNextWord(words);
 	        }
 	        else {
-	            console.log('Local storage not found. Downloading puzzle file...');
-	            var xhr = new XMLHttpRequest();
-	            xhr.open('GET', encodeURI('words.txt'));
-	            xhr.onload = function () {
-	                if (xhr.status === 200) {
-	                    var unshuffledWords = xhr.responseText.split(/\r?\n/);
-	                    var words_1 = shuffle(unshuffledWords);
-	                    writeLocalWords(words_1);
-	                    _this.newGame();
-	                }
-	                else {
-	                    console.log('Puzzle file not found.');
-	                }
-	            };
-	            xhr.send();
-	            return;
+	            ajaxGetText(encodeURI('words.txt'))
+	                .then(function (wordList) { return wordList.split(/\r?\n/); })
+	                .then(shuffle)
+	                .then(useNextWord)
+	                .catch(function (error) { return console.log("newGame error: " + error); });
 	        }
-	        var word = words.pop();
-	        writeLocalWords(words);
-	        AppDispatcher_1.default.dispatch(new NewGameAction(word));
 	    };
 	    ActionCreator.prototype.guessLetter = function (letter) {
 	        AppDispatcher_1.default.dispatch(new GuessLetterAction(letter));
 	    };
 	    return ActionCreator;
 	})();
+	function ajaxGetText(url) {
+	    return new Promise(function (resolve, reject) {
+	        var xhr = new XMLHttpRequest();
+	        xhr.open('GET', url);
+	        xhr.onload = function () {
+	            if (xhr.status === 200) {
+	                resolve(xhr.responseText);
+	            }
+	            else {
+	                reject(xhr.statusText);
+	            }
+	        };
+	        xhr.send();
+	    });
+	}
 	function loadLocalWords() {
 	    var wordsJson = localStorage.getItem('words');
 	    return wordsJson ? JSON.parse(wordsJson) : [];
